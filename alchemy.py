@@ -4,10 +4,16 @@ import datetime
 import faker
 import random
 
-database = '/alchemy.db'
-
 # engine = sqlalchemy.create_engine('sqlite:///:memory:', echo=False)
-engine = sqlalchemy.create_engine(f'sqlite://{database}', echo=False)
+ 
+# database = '/alchemy.db'
+# engine = sqlalchemy.create_engine(f'sqlite://{database}', echo=False)
+user = 'postgres'
+password = '123'
+host = 'localhost'
+port = '5432'
+database = 'postgres'
+engine = sqlalchemy.create_engine(f'postgresql://{user}:{password}@{host}:{port}/{database}', echo=False)
 DBSession = sqlalchemy.orm.sessionmaker(bind=engine)
 
 Base = sqlalchemy.orm.declarative_base()
@@ -15,7 +21,7 @@ Base = sqlalchemy.orm.declarative_base()
 class Student(Base):
     __tablename__ = 'students'
     id:sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(primary_key=True, autoincrement='auto')
-    name:sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(10))
+    name:sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(30))
     surname:sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(30))
     group_id:sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(
         sqlalchemy.Integer, 
@@ -26,7 +32,7 @@ class Proffessor(Base):
     __tablename__ = 'proffessors'
 
     id: sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(primary_key=True, autoincrement='auto')
-    name: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(10), nullable=False)
+    name: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(30), nullable=False)
     surname: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(30), nullable=False)
     
 class Group(Base):
@@ -124,9 +130,13 @@ class Fake_generator:
         students, groups, proffessors, subjects, marks = self.generate_fake_data(
             self.n_students, self.n_groups, self.n_proffessors, self.l_subjects, self.n_marks)
 
-        session.bulk_insert_mappings(Student, students)
         session.bulk_insert_mappings(Group, groups)
+        session.commit()
         session.bulk_insert_mappings(Proffessor, proffessors)
+        session.commit()
+        session.bulk_insert_mappings(Student, students)
+        session.commit()
         session.bulk_insert_mappings(Subject, subjects)
+        session.commit()
         session.bulk_insert_mappings(Mark, marks)
         session.commit()

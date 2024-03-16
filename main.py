@@ -4,9 +4,11 @@ from my_select import SELECT
 def init_db():
     session = DBSession()
 
-    # Base.metadata.create_all(engine)
-    # fg = Fake_generator()
-    # fg(session)
+    Base.metadata.create_all(engine)
+    print('------------created-------------')
+    fg = Fake_generator()
+    fg(session)
+    print('------------populated-------------')
 
     for rqst in SELECT:
         resp = rqst(session)
